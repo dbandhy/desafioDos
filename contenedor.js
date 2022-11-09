@@ -1,144 +1,110 @@
-class FileContainer {
-
-    constructor(path) {
-
-        this.path = path;
-
-    }
-
-async save(object) {
-
-    let objects = await this.getAll();
-    
-   
-    
-    if (objects.some(o => o.id == object.id)) return;
-    
-  
-    
-    objects.push(object);
-    
-    
-    
-    try {
-    
-    fs.promises.writeFile(this.path, JSON.stringify(objects, null, 2));
-    
-   
-    
-    } catch (error) {
-    
-    throw new Error(`Error en guardar objeto de id ${object.id}`);
-    
-    }
-    
-     return 
-    
-}
-
-async getAll() {
-    
-    let objects;
-    
-    try {
-    
-    objects = await fs.promises.readFile(this.path, 'utf-8');
-    
-    } catch (error) {
-    
-    throw new Error(`Error en leer archivo ${this.path}`);
-    
-    }
-    
-    if (objects.length == 0) return [];
-    
-    objects =  [JSON.parse(objects)];
-    
-    return objects;
-    
-}
-}
-// const fs = require('fs')
-
+const fs = require('fs');
 // const { randomUUID } = require('crypto')
 
 
-// class Contenedor {
-//     #elementos
-//     constructor() {
-//         this.#elementos = []
-//     }
+class FileContainer {
+    constructor(path) {
+        this.path = path;
+    }
+    
+    
+    //Métodos
 
-//     guardar(elemento) {
-//         this.#elementos.push(elementos)
-//     }
-
-//     recuperarTodo() {
-//         return this.#elementos
-//     }
-
-//     obtenerID() {
-//         return id
-//     }
-// }
-
-// class ContenedorArchivo {
-//     #elementos
-//     #ruta
-//     constructor(ruta) {
-//         this.#ruta = ruta
-//         this.#elementos = []
+    async save(object) {
+        let objects = await this.getAll();
         
-//     }
-
-//     async guardar(elemento) {
-//         this.#elementos.push(elemento)
-//         await fs.promises.writeFile(this.#ruta, JSON.stringify(this.#elementos))
-//     }
-
-//     async recuperarTodo() {
-//         this.#elementos =  JSON.parse(await fs.promises.readFile(this.#ruta, 'utf-8'))
-//         return this.#elementos
-//     }
-
-//     async leerTodo() {
-//         await fs.promises.writeFile(this.#ruta, JSON.stringify(this.#elementos))
-//         JSON.parse(await fs.promises.readFile(this.#ruta, 'utf-8'))
-//     }
-
-//     // async recuperarId() {
-    
-// }
-
-// async function test() {
-
-//     const rutaArchivo = './elementos.txt'
-//     await fs.promises.writeFile(rutaArchivo, '[]')
-    
-    
-//     const contenedor = new ContenedorArchivo (rutaArchivo)
-
-//     await contenedor.guardar({
-//         id: randomUUID(),
-//         nombre: "Jorge"
-//     })
-    
-//     await contenedor.guardar({
-//         id: randomUUID(),
-//         nombre: "Juan"
+        if (objects.some(o => o.id == object.id)) return;
         
-//     })
-
-//     await contenedor.guardar({
-//         id: randomUUID(),
-//         nombre: "Sol"
+        objects.push(object);
         
-//     })
+        try {
+            fs.promises.writeFile(this.path, JSON.stringify(objects, null, 2));
+        
+        } catch (error) {
+            throw new Error(`Error en guardar objeto de id ${object.id}`);
+        }
+        return
+ 
+    }
+ 
+    async getById(id) {
+        let objects = await this.getAll();
+        return objects.find(p => p.id == id) ?? null;
+    }
+ 
+    async getAll() {
+        let objects;
+        try {
+            objects = await fs.promises.readFile(this.path, 'utf-8');
+        } catch (error) {
+            throw new Error(`Error en leer archivo ${this.path}`);
+        }
+        if (objects.length == 0) return [];
+        objects = [...JSON.parse(objects)];
+        return objects;
+    }
+ 
+    async deleteById(id) {
+        let objects = await this.getAll();
+        let index = objects.findIndex(o => o.id == id);
+        if (index == -1) return;
+        objects.splice(index, index == 0 ? index + 1 : index);
+        try {
+            return fs.promises.writeFile(this.path, JSON.stringify(objects, null, 2));
+        } catch (error) {
+            throw new Error(`Error en escritura, al borrar objeto de id ${id}`);
+        }
+    }
+ 
+    async deleteAll() {
+        try {
+            return fs.promises.writeFile(this.path, JSON.stringify([], null, 2));
+        } catch (error) {
+            throw new Error("Error en escritura, al borrar todos los objetos");
+        }
+    }
+}
+ 
+async function main() {
+    let fc = new FileContainer("productos.txt");
+	
 
-//     await contenedor.recuperarTodo()
-//     await contenedor.leerTodo()
-//     // await contenedor.recuperarId()
     
-// }
+await fc.save({
+         title: 'Pelicula 1',
+         price: 190,
+         thumbnail: 'random',
+         id: 1
+     });
+     console.log(await fc.getAll());
+ 
+   
+    await fc.save({
+        title: 'BB Terráqueo',
+        price: 345.67,
+        thumbnail: 'random',
+        id: 4
+    });
 
-// test(),
+
+    console.log(await fc.getAll());
+ 
+    
+    // console.log(await fc.getById(4));
+ 
+    
+    // console.log(await fc.getById(999));
+ 
+   
+    
+    // console.log(await fc.deleteById(4));
+    // console.log(await fc.getAll());
+ 
+ 
+   
+    // await fc.deleteAll();
+    // console.log(await fc.getAll());
+ 
+}
+
+
