@@ -60,30 +60,15 @@ class Archivo {
 
         async deleteById(id) {
             //await fs.promises.unlink(this.filepath)
-            try {
-            let peliculasCompletas = await fs.promises.writeFile(this.filepath,"utf-8")
-            
-            const peliculaConId = JSON.parse(peliculasCompletas);
-            
-            let peliculaSinId = peliculaConId.filter
-            (peliculas => peliculas.id <= 2 ) // no lee el id
-            //((nuevaPelicula) =>
-            //    nuevaPelicula.id != id ? ele : undefined)
+            try{
 
-            //(peliculas => {
-            //    return peliculas.titulo != id;
-            //  })
-            //((peliculas) => peliculas.id !== Number)
-               // (peliculas => peliculas.id -2)
-              // persona.hobbies = persona.hobbies.filter(function (hobbie) {
-              //  return hobbie.name !== 'Photography';
-              //})
-                // (peli) =>
+              let peliculasCompletas = await fs.promises.readFile(this.filepath, "utf-8")
+              let peliculaConId = JSON.parse(peliculasCompletas);
             
-                // peli.id === id ? ele : undefined
-               // );
-            console.log(peliculaSinId);
-            
+              let peliculaSinId = peliculaConId.filter(nuevaPelicula => nuevaPelicula.id != id  ) //-1
+              await fs.promises.writeFile(this.filepath, JSON.stringify(peliculaSinId))
+              //console.log(peliculaSinId)  
+                   
             } catch (error) {
             
             console.log(error, "no funciona ");
@@ -103,7 +88,10 @@ const main = async () => {
   // console.log(await manejadorDeArchivos.guardar("Documental Mundial", 300, "poster.png"));
   // console.log("Leer: ", await manejadorDeArchivos.leer());
   // console.log( await manejadorDeArchivos.getById(2));
-   // console.log( await manejadorDeArchivos.deleteById(2));
+  //  console.log( await manejadorDeArchivos.deleteById(3));
+  //  console.log("Leer: ", await manejadorDeArchivos.leer())
+    console.log( await manejadorDeArchivos.deleteById(1));
+  //  console.log("Leer: ", await manejadorDeArchivos.leer())
 
 //     setTimeout( async () => {
 //         await manejadorDeArchivos.borrar();
